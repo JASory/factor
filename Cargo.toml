@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-machine-factor={path="/home/jasory/machine-factor"}
+machine-factor="0.2.0"
