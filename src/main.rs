@@ -1,4 +1,4 @@
-use machine_factor::factorize_128;
+use machine_factor::{factorize,factorize_128,Factorization128};
 /*
    --version
    --help
@@ -19,7 +19,7 @@ Options:
 ";
 
 static VERSION : &str = "
-factor 1.0
+factor 1.1
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -34,8 +34,24 @@ enum Value{
    Quit,
 }
 
+fn factor(x: u128) -> Factorization128{
+   if x < 1u128<<64{
+      let t = factorize(x as u64);
+      let mut zero = factorize_128(0u128);
+      
+      for i in 0..t.len{
+          zero.powers[i]=t.powers[i];
+          zero.factors[i]=t.factors[i] as u128;
+      }
+      zero.len = t.len;
+      return zero;
+   }
+   factorize_128(x)
+}
+
 fn format(x: u128) -> String{
-   let f = factorize_128(x);
+   
+   let f = factor(x);
    
    let mut output = String::new();
       if f.powers[0] != 1{
@@ -107,15 +123,12 @@ fn main() {
           match env_var[1].parse::<u128>(){
             Ok(x) => println!("{}: {}",x,format(x)),
             Err(_) => {
-              if env_var[1] == "--help"{
-                 println!("{}",HELP);
+              match env_var[1].as_str(){
+                 "--help" => println!("{}",HELP),
+                 "--version" => println!("{}",VERSION),
+                 _=> println!("Unrecognised option '{}'",env_var[1]),
               }
-              if env_var[1] == "--version"{
-                println!("{}",VERSION);
-              }
-              else{
-                println!("Unrecognised option '{}'",env_var[1]);
-              }
+             
             },
           }
         }
