@@ -12,6 +12,8 @@
   Most composites will be factored in less than 60 seconds (0.6s on average)
 
   This performance is entirely due to the machine-factor library.
+
+  Running `make install`, renames the native coreutils factor binary to gnufactor and writes this program as the factor utility
   
   This code is licensed under GPLv3. 
 
