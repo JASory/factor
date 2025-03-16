@@ -144,6 +144,7 @@ fn param_set(env: &Vec<String>) -> (bool,Style,usize){
    let mut idx : usize = 0;
    
   for (eidx,el) in env[1..].iter().enumerate(){
+    #[allow(unused_comparisons)] // compiler erroneously flags this with a warning 
     if eidx > 0 && eidx < 4{
     
     match el.as_str(){
