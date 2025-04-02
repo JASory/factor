@@ -18,7 +18,7 @@ Options:
 ";
 
 static VERSION : &str = "
-factor 1.2
+factor 1.3
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -39,6 +39,13 @@ enum Style{
   GNUNoRepeat, // GNU without repeating  2 2 3 5 
   Math, // Correct mathematical representation 60: 2^2 * 3 * 5
   MathNoRepeat, // Returns factorization 2^2 * 3 * 5 
+}
+
+#[derive(Clone,Copy,Debug)]
+struct Parameters{
+   hexflag: bool,
+   format: Style,
+   idx: usize, 
 }
 
 // Return Infinite for 0 and 1 for 1
@@ -101,78 +108,80 @@ fn format(x: u128, style: Style) -> String{
       
   }
 
-fn read_integer(hex: bool) -> Value{
-   let mut input = String::new();
-   
-   match std::io::stdin().read_line(&mut input){
-     Ok(_) => (),
-     Err(_) => return Value::Error,
-   }
-   
+fn parse_integer(input: &str, hex: bool) -> Value{
    let k = input.trim();
    
-   if k == "q" || k == "quit" || k == "exit"{
+   if k == "q" || k=="quit"||k=="exit"{
       return Value::Quit;
    }
+
    if hex {
-       match u128::from_str_radix(k,16){
-         Ok(x) => {return Value::Input(x);},
-         Err(_) => {return Value::ParseError(k.to_string());},
-       }
+      match u128::from_str_radix(k,16){
+        Ok(x) => {return Value::Input(x);},
+       Err(_) => {return Value::ParseError(k.to_string());},
+      }
    }
-   match k.parse::<u128>(){
-     Ok(x) => {return Value::Input(x);},
-     Err(_) => {return Value::ParseError(k.to_string());}
+   else{
+     match k.parse::<u128>(){
+        Ok(x) => {return Value::Input(x);},
+        Err(_) => {return Value::ParseError(k.to_string());},
+     }
    }
 }
 
-fn repl(hex: bool, sty: Style){
-       loop{
-          match read_integer(hex){
-            Value::Input(x) => println!("{}",format(x,sty)), 
-            Value::Error => println!("Unable to read from stdin"),
-            Value::ParseError(x) => println!("{} is not a valid input",x),
-            Value::Quit => break,
-          }
-       } 
-}
-
-
-fn param_set(env: &Vec<String>) -> (bool,Style,usize){
+fn param_set(env: &Vec<String>) -> Parameters{
    let mut def_hex = false;
    let mut def_style = Style::Math;
-   let mut idx : usize = 0;
+   let mut sidx : usize = 0;
    
   for (eidx,el) in env[1..].iter().enumerate(){
-    #[allow(unused_comparisons)] // compiler erroneously flags this with a warning 
-    if eidx > 0 && eidx < 4{
+  #[allow(unused_comparisons)] // compiler erroneously flags this with a warning 
+    if eidx >= 0 && eidx < 4{
     
     match el.as_str(){
       "--hex" => {def_hex = true;}
       "--gnu" => {def_style = Style::GNU;}
       "--gnu-nr" => {def_style = Style::GNUNoRepeat;}
       "--no-repeat" => {def_style = Style::MathNoRepeat;}
-      _=> {idx=eidx;break;},
+      _=> {sidx=eidx;break;},
     }
     
     }
     
     }
   
-   (def_hex,def_style,idx)
+   Parameters{hexflag : def_hex, format : def_style,idx: sidx}
 }
 
-fn greedy(params: (bool,Style,usize),env_var: &Vec<String>){
-        for i in env_var[params.2+1..].iter(){
-           if params.0{
+
+fn pipe(params: Parameters){
+   use std::io::{stdin,BufRead};
+   for line in stdin().lock().lines(){
+       match line{
+          Ok(l) => {
+              match parse_integer(&l,params.hexflag){
+                Value::Input(num) =>{println!("{}",format(num,params.format))},
+                Value::ParseError(error_mess) => {println!("{}",error_mess);},
+                Value::Error => {println!("Unknown error");},
+                Value::Quit => {break;},
+              }
+          }
+         Err(error_mess) => {println!("{}",error_mess)} 
+        }
+   }
+}
+
+fn greedy(params: Parameters,env_var: &Vec<String>){
+        for i in env_var[params.idx+1..].iter(){
+           if params.hexflag{
               match u128::from_str_radix(i,16){
-               Ok(x) => println!("{}",format(x,params.1)),
+               Ok(x) => println!("{}",format(x,params.format)),
                Err(_) => println!("'{}' is not a valid integer",i),
               }
            }
            else{
              match i.parse::<u128>(){
-               Ok(x) => println!("{}",format(x,params.1)),
+               Ok(x) => println!("{}",format(x,params.format)),
                Err(_) => println!("'{}' is not a valid integer",i),
              }
            }
@@ -184,11 +193,10 @@ fn main() {
       let env_var = std::env::args().collect::<Vec<String>>();
       let args_count = env_var.len()-1;
       let params = param_set(&env_var);
-      
-      
-      if params.2==0{
+     
+      if params.idx==0{
          if args_count == 0{
-            repl(params.0,params.1);
+            pipe(params);
          }
          else{
          match env_var[1].parse::<u128>(){
@@ -197,14 +205,14 @@ fn main() {
                 match env_var[1].as_str(){
                     "--help" => println!("{}",HELP),
                     "--version" => println!("{}",VERSION),
-                    _=> repl(params.0,params.1),
+                    _=> pipe(params),
                 }
             },
          }
         } 
       }
       
-      if params.2 != 0{
+      if params.idx != 0{
         greedy(params,&env_var);
       }
 }
