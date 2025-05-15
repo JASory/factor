@@ -1,7 +1,9 @@
 [package]
 name = "factor"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 
 [dependencies]
-machine-factor= "0.2.1"
+machine-factor= {version ="0.2.4", features = ["internal"]}
+# Already used as a dependency for machine-factor this is just to call the primality function itself
+machine-prime={version="1.5.5", default-features=false, features=["internal","wide"]}

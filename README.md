@@ -3,13 +3,18 @@
   
   1. Evaluation loop exits on the input of "q","quit" or "exit"
   
-  2. Hexadecimal input is supported with the --hex option
+  2. Hexadecimal, Octal, and binary input is supported with the --hex, --oct and --bin options respectively
   
   3. Factorisations are properly represented using exponentiation and multiplication symbols
   
   4. Supports GNU factor style of formatting, with the provided --gnu flag 
   
   5. Supports formatting without repeating the factor, only outputting the factors.
+  
+  6. Supports other related unary number theoretic functions like primality testing, 
+     euler totient, least group exponent, counting divisors, and others
+     
+  7. Supports filtering out primes from input via the --prime-filter  option.
   
   Currently faster than the coreutils Rust port, and  begins to outspeed GNU factor for n > 2^50. 
   
