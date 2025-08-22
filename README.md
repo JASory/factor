@@ -14,7 +14,11 @@
   6. Supports other related unary number theoretic functions like primality testing, 
      euler totient, least group exponent, counting divisors, and others
      
-  7. Supports filtering out primes from input via the --prime-filter  option.
+  7. Supports evaluating binary number theoretic function to a constant. Multiplicative orders,
+     GCD,Kronecker symbol, fermat test, and the strong fermat test. 
+     
+  8. Supports filtering out primes,coprimes,and fermat pseudoprimes. These functions are 
+     heavily limited by stdin/out speed.
   
   Currently faster than the coreutils Rust port, and  begins to outspeed GNU factor for n > 2^50. 
   
