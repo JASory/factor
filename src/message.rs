@@ -25,29 +25,34 @@ Options:
   --no-repeat   Outputs only the factorisation, without repeating input
   --gnu         Outputs GNU factor format
   --gnu-nr      Outputs GNU factor format without repeating input
+  --max         Outputs the largest factor
  
  1-ary:
  
-  --cyclic{-filter} Determines if Z/nZ is cyclic
-  --euler           Euler totient function, the cardinality of unit subgroup
-  --exp             Least exponent function
-  --{strong-}liar   Counts the number of fermat liars to N
-  --liouville       Liouville function
-  --mobius          Mobius function
-  --omega{-m}       Counts the number of prime factors of N; with multiplicity
-  --prime{-filter}  Determines primality of N
-  --sigma           Number of divisors
+  --cyclic{-filter}     Determines if Z/nZ is cyclic
+  --euler               Euler totient function, the cardinality of unit subgroup
+  --exp                 Least exponent function
+  --{strong-}liar       Counts the number of fermat liars to N
+  --liouville           Liouville function
+  --mobius              Mobius function
+  --omega{-m}           Counts the number of prime factors of N; with multiplicity
+  --prime{-filter}      Determines primality of N
+  --composite{-filter}  Determines compositeness of N
+  --sigma               Number of divisors
+  --frobenius-idx       Minimum nonquadratic residue to N
+  --unit-ratio-{d}      Ratio of strong fermat solutions to units  
   
  2-ary:
   
-  --gcd              Greatest common divisor to FIXED
-  --lcm              Least common multiple to FIXED
-  --coprime{-filter} Determines if N is coprime to FIXED
-  --kronecker        Kronecker symbol N to FIXED
-  --order{-swap}     FIXED^k mod N = 1
-  --inverse{-swap}   FIXED^-1 mod N
-  --fermat{-filter}  Fermat pseudoprime to base FIXED
-  --strong{-filter}  Strong fermat pseudoprime to base FIXED
+  --gcd                 Greatest common divisor to FIXED
+  --lcm                 Least common multiple to FIXED
+  --residue{-swap}      Residue class of FIXED to N
+  --coprime{-filter}    Determines if N is coprime to FIXED
+  --kronecker{-swap}    Kronecker symbol N to FIXED
+  --order{-swap}        FIXED^k mod N = 1
+  --inverse{-swap}      FIXED^-1 mod N
+  --fermat{-filter}     Fermat pseudoprime to base FIXED
+  --strong{-filter}     Strong fermat pseudoprime to base FIXED
   
  0-ary:
  
@@ -65,7 +70,7 @@ License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
-version 1.5 
+version 1.6 
 
 Copyright (C) 2025 JASory.
 ";

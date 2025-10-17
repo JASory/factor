@@ -56,8 +56,12 @@ fn unary_parse(x: &str) -> Option<Function>{
       "--gnu" => Some(Function::ArityOne(Unary::GNU)),
       "--gnu-nr" => Some(Function::ArityOne(Unary::GNUNoRepeat)),
       "--no-repeat" => Some(Function::ArityOne(Unary::FactorNoRepeat)),
+      "--max" => Some(Function::ArityOne(Unary::MaxFactor)),
+      "--max-nr" => Some(Function::ArityOne(Unary::MaxFactorNoRepeat)),
       "--prime" => Some(Function::ArityOne(Unary::Prime)),
-      "--prime-nr" => Some(Function::ArityOne(Unary::PrimeNoRepeat)), 
+      "--composite" => Some(Function::ArityOne(Unary::Composite)),
+      "--prime-nr" => Some(Function::ArityOne(Unary::PrimeNoRepeat)),
+      "--composite-nr" => Some(Function::ArityOne(Unary::CompositeNoRepeat)),
       "--sigma" => Some(Function::ArityOne(Unary::Sigma)),
       "--sigma-nr" => Some(Function::ArityOne(Unary::SigmaNoRepeat)),
       "--euler" => Some(Function::ArityOne(Unary::Euler)),
@@ -79,17 +83,30 @@ fn unary_parse(x: &str) -> Option<Function>{
       "--cyclic" => Some(Function::ArityOne(Unary::Cyclic)),
       "--cyclic-nr" => Some(Function::ArityOne(Unary::CyclicNoRepeat)),
       "--prime-filter" => Some(Function::ArityOne(Unary::PrimeFilter)),
+      "--composite-filter" => Some(Function::ArityOne(Unary::CompositeFilter)),
       "--cyclic-filter" => Some(Function::ArityOne(Unary::CyclicFilter)),
+      "--unit-ratio" => Some(Function::ArityOne(Unary::UnitRatio)),
+      "--unit-ratio-nr" => Some(Function::ArityOne(Unary::UnitRatioNoRepeat)),
+      "--unit-ratio-d" => Some(Function::ArityOne(Unary::UnitRatiod)),
+      "--unit-ratio-d-nr" => Some(Function::ArityOne(Unary::UnitRatiodNoRepeat)),
+      "--frobenius-idx" => Some(Function::ArityOne(Unary::FrobeniusIdx)),
+      "--frobenius-idx-nr" => Some(Function::ArityOne(Unary::FrobeniusIdxNoRepeat)),
       _=> None,
      }
     }
     
    fn binary_parse(x: &str) -> Option<Function>{
      match x{
+      "--residue" => Some(Function::ArityTwo(Binary::Residue)),
+      "--residue-nr" => Some(Function::ArityTwo(Binary::ResidueNoRepeat)),
+      "--residue-swap" => Some(Function::ArityTwo(Binary::ResidueSwap)),
+      "--residue-swap-nr" => Some(Function::ArityTwo(Binary::ResidueSwapNoRepeat)),
       "--gcd" => Some(Function::ArityTwo(Binary::Gcd)),
       "--gcd-nr" => Some(Function::ArityTwo(Binary::GcdNoRepeat)),
       "--kronecker" => Some(Function::ArityTwo(Binary::Kronecker)),
       "--kronecker-nr" => Some(Function::ArityTwo(Binary::KroneckerNoRepeat)),
+      "--kronecker-swap" => Some(Function::ArityTwo(Binary::KroneckerSwap)),
+      "--kronecker-swap-nr" => Some(Function::ArityTwo(Binary::KroneckerSwapNoRepeat)),
       "--lcm" => Some(Function::ArityTwo(Binary::Lcm)),
       "--lcm-nr" => Some(Function::ArityTwo(Binary::LcmNoRepeat)),
       "--coprime" => Some(Function::ArityTwo(Binary::Coprime)),
@@ -98,15 +115,19 @@ fn unary_parse(x: &str) -> Option<Function>{
       "--fermat-filter" => Some(Function::ArityTwo(Binary::FermatFilter)),
       "--strong-filter" => Some(Function::ArityTwo(Binary::StrongFermatFilter)),
       "--fermat" => Some(Function::ArityTwo(Binary::Fermat)),
+      "--fermat-swap" => Some(Function::ArityTwo(Binary::FermatSwap)),
       "--strong" => Some(Function::ArityTwo(Binary::StrongFermat)),
+      "--strong-swap" => Some(Function::ArityTwo(Binary::StrongFermatSwap)),
       "--fermat-nr" => Some(Function::ArityTwo(Binary::FermatNoRepeat)),
+      "--fermat-swap-nr" => Some(Function::ArityTwo(Binary::FermatSwapNoRepeat)),
       "--strong-nr" => Some(Function::ArityTwo(Binary::StrongFermatNoRepeat)),
+      "--strong-swap-nr" => Some(Function::ArityTwo(Binary::StrongFermatSwapNoRepeat)),
       "--order" => Some(Function::ArityTwo(Binary::Ord)),
       "--order-nr" => Some(Function::ArityTwo(Binary::OrdNoRepeat)),  
       "--order-swap" => Some(Function::ArityTwo(Binary::OrdSwap)),
       "--order-swap-nr" => Some(Function::ArityTwo(Binary::OrdSwapNoRepeat)),      
-      "--inverse-nr" => Some(Function::ArityTwo(Binary::MulInverseNoRepeat)),
       "--inverse" => Some(Function::ArityTwo(Binary::MulInverse)),
+      "--inverse-nr" => Some(Function::ArityTwo(Binary::MulInverseNoRepeat)),
       "--inverse-swap-nr" => Some(Function::ArityTwo(Binary::MulInverseSwapNoRepeat)),
       "--inverse-swap" => Some(Function::ArityTwo(Binary::MulInverseSwap)),
       _=> None,
@@ -134,7 +155,7 @@ fn unary_parse(x: &str) -> Option<Function>{
        // halt if greater than 3 args exist
          break;
       }
-      //sidx+=1;
+
       let mut eval_flag = false;
       // Attempt to parse argument as a radix parameter
       match radix_parse(el){

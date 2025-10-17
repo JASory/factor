@@ -1,4 +1,4 @@
-use machine_factor::factorize_128;
+use machine_factor::{factorize_128,Factorization128};
 
 struct Signed(bool,u128);
 
@@ -45,6 +45,12 @@ impl Signed{
    }
 }
 
+pub(crate) fn residue_eval(x: u128, n: u128) -> String{
+    if n==0{
+       return "DNE".to_string();
+    }
+    (x%n).to_string()
+}
 
 pub(crate) fn mul_inverse(x: u128, n: u128) -> (u128,u128){
          let mut gcd : u128 =x;
@@ -235,14 +241,14 @@ pub(crate) fn ord_eval(a: u128,ring: u128) -> String{
  }
  
  pub(crate) fn fermat(base: u128, n: u128) -> bool{
-     if n == 0{
+     if n < 2{
         return false;
      }
      exp_residue(base,n-1,n)==1
  }
  
  pub(crate) fn strong_fermat(base: u128, n: u128) -> bool{
-     if n == 0{
+     if n < 2{
          return false;
      }   
      if n&1 == 0{
@@ -265,7 +271,19 @@ pub(crate) fn ord_eval(a: u128,ring: u128) -> String{
      
  } 
 
-
+pub fn max_factor(x: u128) -> String{
+    if x == 0{
+       return "Infinitely large".to_string();
+   }
+   
+   if x == 1{
+      return "1".to_string();
+   }
+   
+   let f = factorize_128(x);
+   
+   f.factors.iter().max().unwrap().to_string() 
+}
 
 // Return Infinite for 0 and 1 for 1
 pub fn math_style(x: u128) -> String{
@@ -318,9 +336,9 @@ pub fn sigma_eval(x: u128) -> String{
 }
 
 
-pub fn euler_eval(x: u128) -> String{
+pub fn euler_eval(x: u128) -> u128{
     if x == 1{
-       return "1".to_string();
+       return 1u128;
     }
     let mut numerator = 1u128;
     let mut denominator = 1u128;
@@ -331,7 +349,7 @@ pub fn euler_eval(x: u128) -> String{
       numerator*=fctr.factors[idx]-1;
       denominator*=fctr.factors[idx];
     }
-    ((x/denominator)*numerator).to_string()
+    (x/denominator)*numerator
 }
 
 pub fn gcd(x: u128, y: u128) -> u128{
@@ -391,12 +409,12 @@ fn is_prime_power(x: u128, n: u8) -> bool{
    return false;
 }
 
-pub fn cyclic_eval(mut x: u128) -> String{
+pub fn cyclic_eval(mut x: u128) -> bool{
    if x == 0{
-      return "false".to_string();
+      return false;
    }
    if x < 8{
-      return "true".to_string();
+      return true;
    }
    let tzc = x.trailing_zeros();
    
@@ -404,20 +422,20 @@ pub fn cyclic_eval(mut x: u128) -> String{
       x>>=1;
    }
    if tzc>1{
-      return "false".to_string();
+      return false;
    }
    for i in machine_factor::PRIMES_101{
        let powest = x.ilog2()/i.ilog2();
        if x==(i as u128).pow(powest){
-          return "true".to_string();
+          return true;
        }
    }
    for i in 1..15{
       if is_prime_power(x,i){
-         return "true".to_string();
+         return true;
       }
    }
-   "false".to_string()
+   false
 }
 
     fn decomp(x: u128) -> (u32,u128){
@@ -426,9 +444,139 @@ pub fn cyclic_eval(mut x: u128) -> String{
        (twofactor,xminus>>twofactor)
     }
     
-pub fn liar_eval(x: u128) -> String{
+pub fn euler_factorization(x: u128,fctr: &Factorization128) -> u128{
+
+    let mut numerator = 1u128;
+    let mut denominator = 1u128;
+    
+    for idx in 0..fctr.len{
+      numerator*=fctr.factors[idx]-1;
+      denominator*=fctr.factors[idx];
+    }
+    
+    (x/denominator)*numerator
+}
+
+pub fn liar_factorization(x: u128,fctr: Factorization128) -> u128{
+      let xminus = x-1;
+      let mut prod = 1;
+      
+      for i in 0..fctr.len{
+        let factor = fctr.factors[i];
+        if factor == 2{
+           continue;
+        }
+         prod*=gcd(xminus,factor-1);
+      }
+      prod
+}
+
+pub fn strongliar_factorization(x: u128,fctr: Factorization128) -> u128{
+      let xd = decomp(x).1;
+      let mut mine = 128;
+      let m = fctr.len as u32;
+
+      let mut prod = 1;
+      
+     for i in 0..m{
+        let p = fctr.factors[i as usize];
+        let (pe,pd) = decomp(p);
+        if pe < mine{
+           mine = pe;
+        }
+        prod*=gcd(xd,pd);
+     }
+     
+   let denom = 2u128.pow(m)-1;
+   let numer = 2u128.pow(m*mine)-1;
+   let multiplicand = (numer/denom)+1;
+    prod*multiplicand
+}
+
+pub fn ur_func(x: u128) -> (u128,u128){
+    let fctr  = factorize_128(x);
+    let unit_order = euler_factorization(x,&fctr);
+    if x&1==0{
+       let liars = liar_factorization(x,fctr);
+       let cofactor = gcd(unit_order,liars);
+       (liars/cofactor,unit_order/cofactor)
+    }
+    else{
+      let liars = strongliar_factorization(x,fctr);
+      let cofactor = gcd(unit_order,liars);
+      (liars/cofactor,unit_order/cofactor)
+    }
+    
+}
+
+pub fn unit_ratio(x: u128) -> String{
+    let fctr  = factorize_128(x);
+    let unit_order = euler_factorization(x,&fctr);
+    if x < 2{
+       return "0".to_string();
+    }
+    let (l,u) = ur_func(x);
+    format!("{}/{}",l,u)
+    /*
+    if x&1==0{
+       let liars = liar_factorization(x,fctr);
+      let cofactor = gcd(unit_order,liars);
+      format!("{}/{}",liars/cofactor,unit_order/cofactor)
+    } else{
+      let liars = strongliar_factorization(x,fctr);
+      let cofactor = gcd(unit_order,liars);
+      format!("{}/{}",liars/cofactor,unit_order/cofactor)
+    }
+    */
+}
+
+pub fn unit_ratio_d(x: u128) -> f64{
+   if x < 2{
+      return 0f64;
+   }
+   let (l,u) = ur_func(x);
+   l as f64/u as f64
+}
+
+pub fn frobenius_idx(x: u128) -> Option<i64>{
+    if jacobi(x-1,x)==-1{
+       return Some(-1i64);
+    }
+    if jacobi(2,x) == -1{
+       return Some(2);
+    }
+    let sqrt = x.isqrt();
+    if sqrt*sqrt == x{
+       return None;
+    }
+    
+    let mut start = 3u128;
+    
+    loop{
+      if jacobi(start,x)==-1{
+         return Some(start as i64);
+      }
+      if start >= x {
+         return None;
+      }
+      start+=2;
+    }
+    
+}
+
+pub fn fstring(x: u128) -> String{
+    if x < 3{
+      return "DNE".to_string()
+    }
+    match frobenius_idx(x){
+      Some(res) => res.to_string(),
+      None => "DNE".to_string(),
+    }
+}
+    
+pub fn liar_eval(x: u128) -> u128{
       if x < 5 || machine_prime::is_prime_128(x){
-         return "0".to_string();
+         return 0u128;
       }
       let xminus = x-1;
       let tzc = x.trailing_zeros();
@@ -439,14 +587,14 @@ pub fn liar_eval(x: u128) -> String{
       for i in 0..fctr.len{
          prod*=gcd(xminus,fctr.factors[i]-1);
       }
-      (prod-1).to_string()
+      prod-1
 }    
 
-/// Count of strong fermat liars
-pub fn strong_liar_eval(x: u128) -> String{
+/// Count of strong fermat liars minus 1
+pub fn strong_liar_eval(x: u128) -> u128{
 
     if x < 5 || machine_prime::is_prime_128(x){
-       return "0".to_string();
+       return 0;
     }
       // if x \in 2Z 
     if x&1==0{
@@ -471,7 +619,7 @@ pub fn strong_liar_eval(x: u128) -> String{
    let denom = 2u128.pow(m)-1;
    let numer = 2u128.pow(m*mine)-1;
    let multiplicand = (numer/denom)+1;
-    (prod*multiplicand-1).to_string()
+    prod*multiplicand-1
   }
 }
 
