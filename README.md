@@ -14,7 +14,7 @@
   6. Supports other related unary number theoretic functions like primality testing, 
      euler totient, least group exponent, counting divisors, and others
      
-  7. Supports evaluating binary number theoretic function to a constant. Multiplicative orders,
+  7. Supports evaluating binary number theoretic functions to a constant. Multiplicative orders,
      GCD,Kronecker symbol, fermat test, and the strong fermat test. 
      
   8. Supports filtering out primes,coprimes,and fermat pseudoprimes. These functions are 
@@ -24,7 +24,10 @@
   
   Most semiprimes will be factored in less than 60 seconds (0.6s on average for 128-bit integers)
 
-  This performance is entirely due to the machine-factor library.
+  This performance is entirely due to the machine-factor library. 
+
+  `reference.sh` contains some examples of usage. While this program is relatively fast and can be used for some research, 
+  single-threaded piping through stdio is very inefficient, and I recommend using a serious library instead.
   
   Running `make install`, installs it to /usr/bin and redefines factor to call this program instead. 
   
